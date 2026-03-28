@@ -7,12 +7,12 @@ from AarohiX import AarohiX
 DEV_OP = [
     [
         InlineKeyboardButton(text="🥀 ᴏᴡɴᴇʀ 🥀", user_id=OWNER),
-        InlineKeyboardButton(text="✨ ꜱᴜᴘᴘᴏʀᴛ ✨", url=f"https://t.me/{SUPPORT_GRP}"),
+        InlineKeyboardButton(text="✨ ꜱᴜᴘᴘᴏʀᴛ ✨", url=f"https://t.me/log_channel_a"),
     ],
     [
         InlineKeyboardButton(
             text="✦ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✦",
-            url=f"https://t.me/{AarohiX.username}?startgroup=true",
+            url=f"https://t.me/log_channel_a?startgroup=true",
         ),
     ],
     [
@@ -28,7 +28,7 @@ PNG_BTN = [
     [
         InlineKeyboardButton(
             text="😍 ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ 😍",
-            url=f"https://t.me/{AarohiX.username}?startgroup=true",
+            url=f"https://t.me/log_channel_a?startgroup=true",
         ),
     ],
     [
@@ -107,7 +107,7 @@ HELP_START = [
 HELP_BUTN = [
     [
         InlineKeyboardButton(
-            text="« ʜᴇʟᴘ »", url=f"https://t.me/{AarohiX.username}?start=help"
+            text="« ʜᴇʟᴘ »", url=f"https://t.me/log_channel_a?start=help"
         ),
         InlineKeyboardButton(text="⦿ ᴄʟᴏsᴇ ⦿", callback_data="CLOSE"),
     ],
@@ -116,7 +116,7 @@ HELP_BUTN = [
 
 ABOUT_BTN = [
     [
-        InlineKeyboardButton(text="🎄 sᴜᴘᴘᴏʀᴛ 🎄", url=f"https://t.me/{SUPPORT_GRP}"),
+        InlineKeyboardButton(text="🎄 sᴜᴘᴘᴏʀᴛ 🎄", url=f"https://t.me/log_channel_a"),
         InlineKeyboardButton(text="« ʜᴇʟᴘ »", callback_data="HELP"),
     ],
     [
@@ -124,7 +124,7 @@ ABOUT_BTN = [
      #   InlineKeyboardButton(text="❄️ sᴏᴜʀᴄᴇ ❄️", callback_data="SOURCE"),
     ],
     [
-        InlineKeyboardButton(text="🐳 ᴜᴘᴅᴀᴛᴇs 🐳", url=f"https://t.me/{UPDATE_CHNL}"),
+        InlineKeyboardButton(text="🐳 ᴜᴘᴅᴀᴛᴇs 🐳", url=f"https://t.me/log_channel_a"),
         InlineKeyboardButton(text="⦿ ʙᴀᴄᴋ ⦿", callback_data="BACK"),
     ],
 ]

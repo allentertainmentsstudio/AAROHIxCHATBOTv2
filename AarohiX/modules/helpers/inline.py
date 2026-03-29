@@ -120,7 +120,7 @@ ABOUT_BTN = [
         InlineKeyboardButton(text="« ʜᴇʟᴘ »", callback_data="HELP"),
     ],
     [
-        InlineKeyboardButton(text="🍾 ᴏᴡɴᴇʀ 🍾", user_id=OWNER),
+        InlineKeyboardButton(text="🍾 ᴏᴡɴᴇʀ 🍾", user_id=7892805795),
      #   InlineKeyboardButton(text="❄️ sᴏᴜʀᴄᴇ ❄️", callback_data="SOURCE"),
     ],
     [

@@ -21,89 +21,87 @@ async def chaton_(_, m: Message):
     return
 
 
+def is_command(text):
+    if not text:
+        return False
+    return text.startswith(("!", "/", "?", "@", "#"))
+
+
+def get_random_reply(chatai, word_key):
+    if not word_key:
+        return None, "none"
+    is_chat = chatai.find({"word": word_key})
+    K = [x["text"] for x in is_chat]
+    if not K:
+        return None, "none"
+    hey = random.choice(K)
+    is_text = chatai.find_one({"text": hey})
+    if not is_text:
+        return hey, "none"
+    return hey, is_text.get("check", "none")
+
+
+async def reply_based_on_type(message, hey, check_type):
+    if not hey:
+        return
+    if check_type == "sticker":
+        await message.reply_sticker(hey)
+    else:
+        await message.reply_text(hey)
+
+
 @AarohiX.on_message(
     (filters.text | filters.sticker | filters.group) & ~filters.private & ~filters.bot, group=4
 )
 async def chatbot_text(client: Client, message: Message):
     try:
-        if (
-            message.text.startswith("!")
-            or message.text.startswith("/")
-            or message.text.startswith("?")
-            or message.text.startswith("@")
-            or message.text.startswith("#")
-        ):
+        if is_command(getattr(message, "text", None)):
             return
     except Exception:
         pass
+
     chatdb = MongoClient(MONGO_URL)
     chatai = chatdb["Word"]["WordDb"]
+    dildb = MongoClient(MONGO_URL)
+    dil = dildb["DilDb"]["Dil"]
+    is_dil = dil.find_one({"chat_id": message.chat.id})
 
     if not message.reply_to_message:
-        dildb = MongoClient(MONGO_URL)
-        dil = dildb["DilDb"]["Dil"]
-        is_dil = dil.find_one({"chat_id": message.chat.id})
         if not is_dil:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            K = []
-            is_chat = chatai.find({"word": message.text})
-            k = chatai.find_one({"word": message.text})
-            if k:
-                for x in is_chat:
-                    K.append(x["text"])
-                hey = random.choice(K)
-                is_text = chatai.find_one({"text": hey})
-                Yo = is_text["check"]
-                if Yo == "sticker":
-                    await message.reply_sticker(f"{hey}")
-                if not Yo == "sticker":
-                    await message.reply_text(f"{hey}")
+            word_key = getattr(message, "text", None)
+            hey, check_type = get_random_reply(chatai, word_key)
+            await reply_based_on_type(message, hey, check_type)
+        return
 
     if message.reply_to_message and message.reply_to_message.from_user:
-        dildb = MongoClient(MONGO_URL)
-        dil = dildb["DilDb"]["Dil"]
-        is_dil = dil.find_one({"chat_id": message.chat.id})
-        if message.reply_to_message.from_user.id == client.id:
-            if not is_dil:
-                await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-                K = []
-                is_chat = chatai.find({"word": message.text})
-                k = chatai.find_one({"word": message.text})
-                if k:
-                    for x in is_chat:
-                        K.append(x["text"])
-                    hey = random.choice(K)
-                    is_text = chatai.find_one({"text": hey})
-                    Yo = is_text["check"]
-                    if Yo == "sticker":
-                        await message.reply_sticker(f"{hey}")
-                    if not Yo == "sticker":
-                        await message.reply_text(f"{hey}")
-        if message.reply_to_message.from_user.id != client.id:
-            if message.sticker:
+        replied_id = message.reply_to_message.from_user.id
+        word_key = getattr(message.reply_to_message, "text", None)
+        if replied_id == client.id:
+            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+            word_key = getattr(message, "text", None)
+            hey, check_type = get_random_reply(chatai, word_key)
+            await reply_based_on_type(message, hey, check_type)
+        else:
+            if getattr(message, "sticker", None):
                 is_chat = chatai.find_one(
-                    {
-                        "word": message.reply_to_message.text,
-                        "id": message.sticker.file_unique_id,
-                    }
+                    {"word": word_key, "id": message.sticker.file_unique_id}
                 )
                 if not is_chat:
                     chatai.insert_one(
                         {
-                            "word": message.reply_to_message.text,
+                            "word": word_key,
                             "text": message.sticker.file_id,
                             "check": "sticker",
                             "id": message.sticker.file_unique_id,
                         }
                     )
-            if message.text:
-                is_chat = chatai.find_one(
-                    {"word": message.reply_to_message.text, "text": message.text}
-                )
+            if getattr(message, "text", None):
+                is_chat = chatai.find_one({"word": word_key, "text": message.text})
                 if not is_chat:
                     chatai.insert_one(
                         {
-                            "word": message.reply_to_message.text,
+                            "word": word_key,
                             "text": message.text,
                             "check": "none",
                         }
@@ -115,89 +113,51 @@ async def chatbot_text(client: Client, message: Message):
 )
 async def chatbot_sticker(client: Client, message: Message):
     try:
-        if (
-            message.text.startswith("!")
-            or message.text.startswith("/")
-            or message.text.startswith("?")
-            or message.text.startswith("@")
-            or message.text.startswith("#")
-        ):
+        if is_command(getattr(message, "text", None)):
             return
     except Exception:
         pass
+
     chatdb = MongoClient(MONGO_URL)
     chatai = chatdb["Word"]["WordDb"]
+    dildb = MongoClient(MONGO_URL)
+    dil = dildb["DilDb"]["Dil"]
+    is_dil = dil.find_one({"chat_id": message.chat.id})
 
     if not message.reply_to_message:
-        dildb = MongoClient(MONGO_URL)
-        dil = dildb["DilDb"]["Dil"]
-        is_dil = dil.find_one({"chat_id": message.chat.id})
         if not is_dil:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            K = []
-            is_chat = chatai.find({"word": message.sticker.file_unique_id})
-            k = chatai.find_one({"word": message.text})
-            if k:
-                for x in is_chat:
-                    K.append(x["text"])
-                hey = random.choice(K)
-                is_text = chatai.find_one({"text": hey})
-                Yo = is_text["check"]
-                if Yo == "text":
-                    await message.reply_text(f"{hey}")
-                if not Yo == "text":
-                    await message.reply_sticker(f"{hey}")
+            word_key = getattr(message.sticker, "file_unique_id", None)
+            hey, check_type = get_random_reply(chatai, word_key)
+            await reply_based_on_type(message, hey, check_type)
+        return
 
     if message.reply_to_message and message.reply_to_message.from_user:
-        dildb = MongoClient(MONGO_URL)
-        dil = dildb["DilDb"]["Dil"]
-        is_dil = dil.find_one({"chat_id": message.chat.id})
-        if message.reply_to_message.from_user.id == client.id:
-            if not is_dil:
-                await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-                K = []
-                is_chat = chatai.find({"word": message.text})
-                k = chatai.find_one({"word": message.text})
-                if k:
-                    for x in is_chat:
-                        K.append(x["text"])
-                    hey = random.choice(K)
-                    is_text = chatai.find_one({"text": hey})
-                    Yo = is_text["check"]
-                    if Yo == "text":
-                        await message.reply_text(f"{hey}")
-                    if not Yo == "text":
-                        await message.reply_sticker(f"{hey}")
-        if message.reply_to_message.from_user.id != client.id:
-            if message.text:
+        replied_id = message.reply_to_message.from_user.id
+        word_key = getattr(message.reply_to_message, "sticker", None)
+        if replied_id == client.id:
+            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+            word_key = getattr(message, "text", None) or getattr(message, "sticker", None)
+            hey, check_type = get_random_reply(chatai, word_key)
+            await reply_based_on_type(message, hey, check_type)
+        else:
+            if getattr(message, "text", None):
                 is_chat = chatai.find_one(
-                    {
-                        "word": message.reply_to_message.sticker.file_unique_id,
-                        "text": message.text,
-                    }
+                    {"word": getattr(message.reply_to_message.sticker, "file_unique_id", None), "text": message.text}
                 )
                 if not is_chat:
                     chatai.insert_one(
-                        {
-                            "word": message.reply_to_message.sticker.file_unique_id,
-                            "text": message.text,
-                            "check": "text",
-                        }
+                        {"word": getattr(message.reply_to_message.sticker, "file_unique_id", None),
+                         "text": message.text, "check": "text"}
                     )
-            if message.sticker:
+            if getattr(message, "sticker", None):
                 is_chat = chatai.find_one(
-                    {
-                        "word": message.reply_to_message.sticker.file_unique_id,
-                        "text": message.sticker.file_id,
-                    }
+                    {"word": getattr(message.reply_to_message.sticker, "file_unique_id", None), "text": message.sticker.file_id}
                 )
                 if not is_chat:
                     chatai.insert_one(
-                        {
-                            "word": message.reply_to_message.sticker.file_unique_id,
-                            "text": message.sticker.file_id,
-                            "check": "none",
-                        }
+                        {"word": getattr(message.reply_to_message.sticker, "file_unique_id", None),
+                         "text": message.sticker.file_id, "check": "none"}
                     )
 
 
@@ -206,89 +166,15 @@ async def chatbot_sticker(client: Client, message: Message):
 )
 async def chatbot_pvt(client: Client, message: Message):
     try:
-        if (
-            message.text.startswith("!")
-            or message.text.startswith("/")
-            or message.text.startswith("?")
-            or message.text.startswith("@")
-            or message.text.startswith("#")
-        ):
+        if is_command(getattr(message, "text", None)):
             return
     except Exception:
         pass
+
     chatdb = MongoClient(MONGO_URL)
     chatai = chatdb["Word"]["WordDb"]
-    if not message.reply_to_message:
-        await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-        K = []
-        is_chat = chatai.find({"word": message.text})
-        for x in is_chat:
-            K.append(x["text"])
-        hey = random.choice(K)
-        is_text = chatai.find_one({"text": hey})
-        Yo = is_text["check"]
-        if Yo == "sticker":
-            await message.reply_sticker(f"{hey}")
-        if not Yo == "sticker":
-            await message.reply_text(f"{hey}")
-    if message.reply_to_message and message.reply_to_message.from_user:
-        if message.reply_to_message.from_user.id == client.id:
-            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            K = []
-            is_chat = chatai.find({"word": message.text})
-            for x in is_chat:
-                K.append(x["text"])
-            hey = random.choice(K)
-            is_text = chatai.find_one({"text": hey})
-            Yo = is_text["check"]
-            if Yo == "sticker":
-                await message.reply_sticker(f"{hey}")
-            if not Yo == "sticker":
-                await message.reply_text(f"{hey}")
+    await client.send_chat_action(message.chat.id, ChatAction.TYPING)
 
-
-@AarohiX.on_message(
-    (filters.sticker | filters.group) & ~filters.private & ~filters.bot,
-    group=4,
-)
-async def chatbot_sticker_pvt(client: Client, message: Message):
-    try:
-        if (
-            message.text.startswith("!")
-            or message.text.startswith("/")
-            or message.text.startswith("?")
-            or message.text.startswith("@")
-            or message.text.startswith("#")
-        ):
-            return
-    except Exception:
-        pass
-    chatdb = MongoClient(MONGO_URL)
-    chatai = chatdb["Word"]["WordDb"]
-    if not message.reply_to_message:
-        await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-        K = []
-        is_chat = chatai.find({"word": message.sticker.file_unique_id})
-        for x in is_chat:
-            K.append(x["text"])
-        hey = random.choice(K)
-        is_text = chatai.find_one({"text": hey})
-        Yo = is_text["check"]
-        if Yo == "text":
-            await message.reply_text(f"{hey}")
-        if not Yo == "text":
-            await message.reply_sticker(f"{hey}")
-    if message.reply_to_message and message.reply_to_message.from_user:
-        if message.reply_to_message.from_user.id == client.id:
-            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            K = []
-            is_chat = chatai.find({"word": message.sticker.file_unique_id})
-            for x in is_chat:
-                K.append(x["text"])
-            hey = random.choice(K)
-            is_text = chatai.find_one({"text": hey})
-            Yo = is_text["check"]
-            if Yo == "text":
-                await message.reply_text(f"{hey}")
-            if not Yo == "text":
-                await message.reply_sticker(f"{hey}")
+    word_key = getattr(message, "text", None) or getattr(message, "sticker", None)
+    hey, check_type = get_random_reply(chatai, word_key)
+    await reply_based_on_type(message, hey, check_type)

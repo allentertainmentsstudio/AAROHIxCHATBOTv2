@@ -2,7 +2,7 @@ from config import OWNER_USERNAME, SUPPORT_GRP
 from AarohiX import AarohiX
 
 START = f"""
-**๏ ʜᴇʏ, ɪ ᴀᴍ [ArohiX](t.me/Arohi_X_bot)**
+**๏ ʜᴇʏ, ɪ ᴀᴍ [ArohiX](https://t.me/Arohi_X_bot)**
 **➻ ᴀɴ ᴀɪ ʙᴀsᴇᴅ ᴄʜᴀᴛʙᴏᴛ**
 **──────────────**
 **➻ ᴜsᴀɢᴇ /chatbot [ᴏɴ/ᴏғғ]**

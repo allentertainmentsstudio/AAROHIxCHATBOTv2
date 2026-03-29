@@ -6,7 +6,7 @@ from AarohiX import AarohiX
 
 DEV_OP = [
     [
-        InlineKeyboardButton(text="🥀 ᴏᴡɴᴇʀ 🥀", user_id=OWNER),
+        InlineKeyboardButton(text="🥀 ᴏᴡɴᴇʀ 🥀", user_id=7892805795),
         InlineKeyboardButton(text="✨ ꜱᴜᴘᴘᴏʀᴛ ✨", url=f"https://t.me/log_channel_a"),
     ],
     [
